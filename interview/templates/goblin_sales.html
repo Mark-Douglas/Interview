@@ -1,0 +1,89 @@
+{% extends 'goblin_main_template.html' %}
+
+{% block js %}
+
+	<script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/v/dt/jq-3.6.0/dt-1.12.1/fh-3.2.4/datatables.min.js"></script>
+
+{% endblock js %}  
+
+{% block content %}
+
+<form method="POST" action="">
+	{% csrf_token %}
+	<table cellspacing="19">
+		<tr>
+			<td>
+				<label for="quarter">Period Covered</label>
+				<select name='quarter' onchange='this.form.submit()'>
+					<option value="0" {% if quarter == 0 %}selected disabled{% endif %}>All</option>
+					{% for sales_quarter in sales_quarters %}
+						<option value="{{sales_quarter}}"{% if quarter == sales_quarter %} selected{% endif %}>Quarter {{sales_quarter}}</option>
+					{% endfor %}
+				</select>
+			</td>
+			<td>
+				<label for="product">Product Type</label>
+				<select name='product' onchange='this.form.submit()'>
+					<option value="" {% if not product %}selected disabled{% endif %}>All</option>
+					{% for product_type in product_types %}
+						<option value="{{product_type}}"{% if product == product_type %} selected{% endif %}>{{product_type}}</option>
+					{% endfor %}
+				</select>
+			</td>
+		</tr>
+	</table>
+</form>
+
+{% if quarter %}
+
+<h2>Quarter {{quarter}}</h2>
+
+{% else %}
+
+<h2>All Quarters</h2>
+
+{% endif %}
+
+{% if cakes %}
+
+<table id="sales_table" class="display" style="width:100%">
+    <thead>
+		<tr>
+		{% for header in headers %}
+			<td>{{header}}</td>
+		{% endfor %}
+		</tr>
+	</thead>
+	<tbody>
+	{% for cake in cakes %}
+		<tr>
+			<td>{{cake.product}}</td>
+			<td>{{cake.product_type}}</td>
+			<td>{{cake.price_per}}</td>
+			<td>{{cake.units_sold}}</td>
+			<td>{{cake.total_sales_value}}</td>
+		</tr>
+	{% endfor %}
+	</tbody>
+</table>
+<script type="text/javascript">
+$(document).ready(function () {
+   	$('#sales_table').DataTable( {
+		columnDefs: [
+			{
+				target: 3,
+				render: DataTable.render.number(",", null, 0),
+			},
+			{
+				targets: [2, 4],
+				render: DataTable.render.number(",", ".", 2, "£"),
+			}
+        ],
+    });
+});
+</script>
+
+{% endif %}
+
+{% endblock content %}
